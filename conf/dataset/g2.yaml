@@ -1,0 +1,4 @@
+# @package _group_
+_target_: src.dataset.G2Dataset
+n: 100
+seed: 1
