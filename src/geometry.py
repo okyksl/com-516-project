@@ -29,6 +29,9 @@ def convex_hull(points: np.ndarray) -> np.ndarray:
         Returns:
             np.ndarray (of shape k x 2) containing the points in the convex hull
     """
+    if len(points) < 4:
+        return points
+
     # get points as list
     points = points.tolist()
     n = len(points)
@@ -67,7 +70,7 @@ def rotating_calipers(hull: np.ndarray) -> float:
     """Generates antipodal points of a given convex hull"""
 
     n = len(hull)
-    if n == 1:
+    if n < 2:
         return 0
     elif n == 2:
         return np.linalg.norm(hull[0] - hull[1], ord=2)
@@ -89,7 +92,7 @@ def find_max_dist(points: np.ndarray) -> float:
     """Calculates the maximum distance between any pair of points"""
     hull = convex_hull(points)
     best = 0.
-    for (x, y) in rotating_caliper(hull):
+    for (x, y) in rotating_calipers(hull):
         best = np.maximum(best, np.linalg.norm(x - y, ord=2))
     return best
 
