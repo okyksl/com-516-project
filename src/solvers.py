@@ -41,7 +41,7 @@ class Solver(ABC):
         return np.linalg.norm(pt1 - pt2, ord=2)
 
 class NaiveSolver(Solver):
-    """Implements naive O(n^4) brute-force solution"""
+    """Implements naive O(n^3) brute-force solution"""
 
     S: list = None
     best: float = None
@@ -71,26 +71,6 @@ class NaiveSolver(Solver):
             if i < j:
                 center = (self.dataset.coords[i] + self.dataset.coords[j]) / 2
                 radius = Solver.dist(self.dataset.coords[i], center)
-                self._consider(center, radius)
-
-        # triple points solutions
-        for (i,j,k) in itertools.product(*ranges):
-            if i < j and j < k:
-                # setup linear equation for center
-                mat = 2 * np.array([
-                    self.dataset.coords[i] - self.dataset.coords[j],
-                    self.dataset.coords[j] - self.dataset.coords[k]
-                ])
-                res = np.array([
-                    (self.dataset.coords[i,0] ** 2 + self.dataset.coords[i,1] ** 2) - (self.dataset.coords[j,0] ** 2 + self.dataset.coords[j,1] ** 2),
-                    (self.dataset.coords[j,0] ** 2 + self.dataset.coords[j,1] ** 2) - (self.dataset.coords[k,0] ** 2 + self.dataset.coords[k,1] ** 2)
-                ])
-                
-                # calculate center and radius
-                center = np.linalg.solve(mat, res)
-                radius = Solver.dist(center, self.dataset.coords[i])
-
-                # update best solutions
                 self._consider(center, radius)
 
         # return the best results
