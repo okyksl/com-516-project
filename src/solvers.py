@@ -2,9 +2,14 @@ import itertools
 import numpy as np
 
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import Callable, Tuple, List, Optional, Any
+from omegaconf import DictConfig
+
 
 from src.dataset import Dataset
+from src.geometry import find_max_dist
+from src.mcmc import MCMCPowerOptimizer
+from src.utils import rand, rand_bool, rand_bool_n
 
 class Solver(ABC):
     dataset: Dataset = None
@@ -75,3 +80,42 @@ class NaiveSolver(Solver):
 
         # return the best results
         return self.S, self.best
+
+class MCMCSolver(Solver):
+    """Implements naive MCMC solution with a base chain on power set of cities"""
+
+    def __init__(self, beta: float, step: int, start: str, scheduler: Optional[Any]) -> None:
+        self.beta = beta
+        self.step = step
+        self.start = start
+
+        if scheduler is not None:
+            self.beta_n = len(scheduler.checkpoints)
+            self.checkpoints = scheduler.checkpoints
+            self.betas = scheduler.betas
+            self.betas.insert(self.beta, 0)
+
+            def scheduler(t: int) -> float:
+                i = 0
+                while i < self.beta_n and t > self.checkpoints[i]:
+                    i += 1
+                return self.betas[i]
+
+            self.scheduler = scheduler
+
+    def _solve(self) -> Tuple[list, float]:
+        def f(i: List[bool]) -> float:
+            points = self.dataset.coords[i, :]
+            radius = find_max_dist(points) / 2
+            return -self.objective(i, radius)
+
+        if self.start == 'empty':
+            state = [False for i in range(self.dataset.n)]
+        elif self.start == 'binom':
+            state = rand_bool_n(self.dataset.n)
+        else:
+            raise ValueError
+
+        chain = MCMCPowerOptimizer(self.dataset.n, f, beta=self.beta, cache=True)
+        res = chain.simulate(state, self.step, scheduler=self.scheduler)
+        return np.arange(self.dataset.n)[res], -f(res)
