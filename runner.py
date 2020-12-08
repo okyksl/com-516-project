@@ -26,6 +26,7 @@ def run(cfg: DictConfig):
 
     logger.info(f'Objective: {obj}')
     logger.info(f'Set S: {S}')
+    logger.info(f'|S|: {len(S)}')
 
 if __name__ == "__main__":
     run()
