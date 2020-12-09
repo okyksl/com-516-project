@@ -3,6 +3,7 @@ _target_: src.solvers.MCMCSolver
 beta: 1
 step: 2000
 start: empty # 'empty' or 'binom'
+seed: 99
 scheduler:
   checkpoints: [500, 1000, 1500]
   betas: [5, 25, 125]

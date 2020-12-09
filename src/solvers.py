@@ -84,10 +84,17 @@ class NaiveSolver(Solver):
 class MCMCSolver(Solver):
     """Implements naive MCMC solution with a base chain on power set of cities"""
 
-    def __init__(self, beta: float, step: int, start: str, scheduler: Optional[Any]) -> None:
+    def __init__(
+        self,
+        beta: float,
+        step: int,
+        start: str = 'empty',
+        seed: Optional[int] = None,
+        scheduler: Optional[Any] = None) -> None:
         self.beta = beta
         self.step = step
         self.start = start
+        self.seed = seed
 
         if scheduler is not None:
             self.beta_n = len(scheduler.checkpoints)
@@ -117,7 +124,7 @@ class MCMCSolver(Solver):
             raise ValueError
 
         chain = MCMCPowerOptimizer(self.dataset.n, f, beta=self.beta, cache=True)
-        res = chain.simulate(state, self.step, scheduler=self.scheduler)
+        res = chain.simulate(state, self.step, scheduler=self.scheduler, seed=self.seed)
 
         objectives = -np.array(chain.objectives)
         states = [ np.sum(np.array(trajectory)) for trajectory in chain.trajectory ]

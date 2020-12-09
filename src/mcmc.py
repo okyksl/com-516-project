@@ -42,8 +42,11 @@ class MCMC(Generic[T]):
             return j
         return i
 
-    def simulate(self, i: T, n: int) -> T:
+    def simulate(self, i: T, n: int, seed: Optional[int] = None) -> T:
         """Simulate the MCMC from the given start state"""
+        if seed is not None:
+            np.random.seed(seed)
+
         self.record(i, 0)
         for t in range(1, n+1):
             i = self.step(i, t)
@@ -93,7 +96,7 @@ class MCMCPower(MCMCUniform[List[bool]]):
     
     def propose(self, i: List[bool]) -> List[bool]:
         j = list(i)
-        k = np.random.randint(low=0, high=self.n)
+        k = np.random.choice(self.n)
         j[k] = not i[k]
         return j
     
