@@ -7,3 +7,4 @@ seed: 99
 scheduler:
   checkpoints: [500, 1000, 1500]
   betas: [5, 25, 125]
+visualize: False

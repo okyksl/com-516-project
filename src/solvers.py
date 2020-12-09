@@ -90,11 +90,13 @@ class MCMCSolver(Solver):
         step: int,
         start: str = 'empty',
         seed: Optional[int] = None,
-        scheduler: Optional[Any] = None) -> None:
+        scheduler: Optional[Any] = None,
+        visualize: bool = False) -> None:
         self.beta = beta
         self.step = step
         self.start = start
         self.seed = seed
+        self.visualize = visualize
 
         if scheduler is not None:
             self.beta_n = len(scheduler.checkpoints)
@@ -126,15 +128,16 @@ class MCMCSolver(Solver):
         chain = MCMCPowerOptimizer(self.dataset.n, f, beta=self.beta, cache=True)
         res = chain.simulate(state, self.step, scheduler=self.scheduler, seed=self.seed)
 
-        objectives = -np.array(chain.objectives)
-        states = [ np.sum(np.array(trajectory)) for trajectory in chain.trajectory ]
+        if self.visualize:
+            objectives = -np.array(chain.objectives)
+            states = [ np.sum(np.array(trajectory)) for trajectory in chain.trajectory ]
 
-        import matplotlib.pyplot as plt
-        fig, axs = plt.subplots(nrows=2, ncols=1)
-        axs[0].plot(objectives)
-        axs[0].set_ylabel(f'$f(S)$')
-        axs[1].plot(states)
-        axs[1].set_ylabel(f'$|S|$')
-        plt.show()
+            import matplotlib.pyplot as plt
+            fig, axs = plt.subplots(nrows=2, ncols=1)
+            axs[0].plot(objectives)
+            axs[0].set_ylabel(f'$f(S)$')
+            axs[1].plot(states)
+            axs[1].set_ylabel(f'$|S|$')
+            plt.show()
 
         return np.arange(self.dataset.n)[res], -f(res)
