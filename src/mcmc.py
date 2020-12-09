@@ -131,7 +131,9 @@ class MCMCOptimizer(MCMC[T]):
             self.f = _f
     
     def stationary(self, i: T, j: T) -> float:
-        return np.exp(self.beta * (self.f(i) - self.f(j)))
+        exponent = self.beta * (self.f(i) - self.f(j))
+        exponent = np.clip(exponent, -500, +500)
+        return np.exp(exponent)
 
     def simulate(self, i: T, n: int, scheduler: Optional[Callable] = None) -> T:
         self.scheduler = scheduler
