@@ -118,4 +118,16 @@ class MCMCSolver(Solver):
 
         chain = MCMCPowerOptimizer(self.dataset.n, f, beta=self.beta, cache=True)
         res = chain.simulate(state, self.step, scheduler=self.scheduler)
+
+        objectives = -np.array(chain.objectives)
+        states = [ np.sum(np.array(trajectory)) for trajectory in chain.trajectory ]
+
+        import matplotlib.pyplot as plt
+        fig, axs = plt.subplots(nrows=2, ncols=1)
+        axs[0].plot(objectives)
+        axs[0].set_ylabel(f'$f(S)$')
+        axs[1].plot(states)
+        axs[1].set_ylabel(f'$|S|$')
+        plt.show()
+
         return np.arange(self.dataset.n)[res], -f(res)
