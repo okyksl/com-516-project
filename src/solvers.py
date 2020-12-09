@@ -93,7 +93,7 @@ class MCMCSolver(Solver):
             self.beta_n = len(scheduler.checkpoints)
             self.checkpoints = scheduler.checkpoints
             self.betas = scheduler.betas
-            self.betas.insert(self.beta, 0)
+            self.betas.insert(0, self.beta)
 
             def scheduler(t: int) -> float:
                 i = 0
