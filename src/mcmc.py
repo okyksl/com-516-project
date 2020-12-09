@@ -138,9 +138,9 @@ class MCMCOptimizer(MCMC[T]):
         exponent = np.clip(exponent, -500, +500)
         return np.exp(exponent)
 
-    def simulate(self, i: T, n: int, scheduler: Optional[Callable] = None) -> T:
+    def simulate(self, i: T, n: int, seed: int = None, scheduler: Optional[Callable] = None) -> T:
         self.scheduler = scheduler
-        return super().simulate(i, n)
+        return super().simulate(i, n, seed)
 
     def record(self, i: T, t: int) -> None:
         """Records useful information for the current step"""
