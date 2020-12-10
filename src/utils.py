@@ -15,6 +15,9 @@ def rand_bool() -> bool:
 def rand_bool_n(n: int) -> List[bool]:
     return [ rand_bool() for i in range(n) ]
 
+def rand_int(n) -> int:
+    return np.random.randint(n)
+
 def display_config(cfg: DictConfig) -> None:
     """Displays the configuration"""
     logger = logging.getLogger()

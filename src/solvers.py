@@ -9,7 +9,7 @@ from omegaconf import DictConfig
 from src.dataset import Dataset
 from src.geometry import find_max_dist
 from src.mcmc import MCMCPowerOptimizer
-from src.utils import rand, rand_bool, rand_bool_n
+from src.utils import rand, rand_bool, rand_bool_n, rand_int
 
 class Solver(ABC):
     dataset: Dataset = None
@@ -65,7 +65,7 @@ class NaiveSolver(Solver):
         self.best = 0
 
         # list composed of three (0,n-1) ranges
-        ranges = [range(self.dataset.n) for i in range(3)]
+        ranges = [range(self.dataset.n) for i in range(2)]
 
         # single point solutions
         for (i) in itertools.product(*ranges[:1]):
@@ -77,6 +77,26 @@ class NaiveSolver(Solver):
                 center = (self.dataset.coords[i] + self.dataset.coords[j]) / 2
                 radius = Solver.dist(self.dataset.coords[i], center)
                 self._consider(center, radius)
+
+        # return the best results
+        return self.S, self.best
+
+class RandomizedNaiveSolver(NaiveSolver):
+    def __init__(self, k: int) -> None:
+        self.k = k
+
+    def _solve(self) -> Tuple[list, float]:
+        # container vars for best found solution
+        self.S = []
+        self.best = 0
+
+        # randomly try (i,j) pairs
+        for _ in range(self.k):
+            i = rand_int(self.dataset.n)
+            j = rand_int(self.dataset.n)
+            center = (self.dataset.coords[i] + self.dataset.coords[j]) / 2
+            radius = Solver.dist(self.dataset.coords[i], center)
+            self._consider(center, radius)
 
         # return the best results
         return self.S, self.best
