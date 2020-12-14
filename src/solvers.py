@@ -75,6 +75,8 @@ class NaiveSolver(Solver):
         return self.S, self.best
 
 class RandomizedNaiveSolver(NaiveSolver):
+    """Randomized variant of the naive solver"""
+
     def __init__(self, k: int) -> None:
         self.k = k
 
@@ -115,6 +117,7 @@ class MCMCSolver(Solver):
         self.num_trials = num_trials
         self.visualize = visualize
 
+        # prepare beta scheduler function
         if scheduler is not None:
             self.beta_n = len(scheduler.checkpoints)
             self.checkpoints = scheduler.checkpoints
@@ -135,6 +138,7 @@ class MCMCSolver(Solver):
             radius = find_max_dist(points) / 2
             return -self.objective(i, radius)
 
+        # prepare initial state
         if self.start == 'empty':
             initial_state = [False for i in range(self.dataset.n)]
         elif self.start == 'binom':
@@ -142,9 +146,11 @@ class MCMCSolver(Solver):
         else:
             raise ValueError
 
+        # set seed if not given
         if self.seed is None:
             self.seed = 0
 
+        # run with different seeds
         states, results = [], []
         for i in range(self.num_trials):
             # simulate the chain

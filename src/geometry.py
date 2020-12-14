@@ -12,7 +12,6 @@ def slope(x, y):
 
 def area(x, y, z):
     """Calculates area of the triangle formed by given triplet of points"""
-
     a = np.linalg.norm(x - y, ord=2)
     b = np.linalg.norm(y - z, ord=2)
     c = np.linalg.norm(z - x, ord=2)
@@ -68,7 +67,7 @@ def convex_hull(points: np.ndarray) -> np.ndarray:
 
 def rotating_calipers(hull: np.ndarray) -> float:
     """Generates antipodal points of a given convex hull"""
-
+    # handle trivial cases
     n = len(hull)
     if n == 0:
         return
@@ -79,10 +78,12 @@ def rotating_calipers(hull: np.ndarray) -> float:
         yield hull[0], hull[1]
         return
 
+    # find the first antipodal point
     j = 1
     while area(hull[n-1], hull[0], hull[j]) < area(hull[n-1], hull[0], hull[j+1]):
         j += 1
 
+    # rotate while reporting antipodal points 
     end = j
     i = 0
     while i <= end and j < n:
@@ -94,8 +95,11 @@ def rotating_calipers(hull: np.ndarray) -> float:
 
 def find_max_dist(points: np.ndarray) -> float:
     """Calculates the maximum distance between any pair of points"""
+    # calculate convex hull
     hull = convex_hull(points)
     best = 0.
+
+    # search through antipodal points
     for (x, y) in rotating_calipers(hull):
         best = np.maximum(best, np.linalg.norm(x - y, ord=2))
     return best

@@ -18,12 +18,14 @@ def run(cfg: DictConfig):
     solver: Solver = instantiate(cfg.solver)
     lmbd: float = cfg.lmbd
 
+    # start solver
     logger = logging.getLogger()
     logger.info('Begin solving')
     S, obj = solver.solve(dataset, lmbd)
     logger.info('End solving')
     logger.info('=' * 40 + '\n')
 
+    # report results
     logger.info(f'Objective: {obj}')
     logger.info(f'Set S: {S}')
     logger.info(f'|S|: {len(S)}')

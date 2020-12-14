@@ -8,7 +8,7 @@ from src.utils import rand
 T = TypeVar('T')
 
 class MCMC(Generic[T]):
-    """Generic MCMC for """
+    """Generic MCMC"""
     @abstractmethod
     def base(self, i: T, j: T) -> float:
         """Returns the base chain transition probability :math:`p(X_1 = j | X_0 = i)`"""
