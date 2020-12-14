@@ -1,6 +1,6 @@
 defaults:
   - dataset: g1
-  - solver: naive
+  - solver: mcmc
   - hydra/job_logging: custom
   - hydra/output: custom
 lmbd: 0.1

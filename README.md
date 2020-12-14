@@ -1,5 +1,9 @@
 # COM-516 Mini Project
 
+We provide two seperate implementations. One implementation over Jupyter Notebook which can be found under `src/mcmc_stub.ipynb`, and another full Python implementation is accessible through command-line via `runner.py`. Note that beta scheduling described in section 3.2.2. is only accessible through the notebook implementation. Equivalence of two implementation is verified by running over the the same random seeds.
+
+Below, explains the command-line usage for Python source including experimentation support and parameters available. For evaluating our solution quickly and cleanly or running extensive experiments with multiple parameters Python source might be a better option. For interactive purposes (editing the code, visualizing results), notebook implementation might be a better option.
+
 ## Installation
 
 Install dependencies listed in `requirements.txt`.
@@ -19,7 +23,7 @@ python runner.py
 You can use predefined datasets `g1` and `g2` and even enter customize number of cities **n** and **seed** (for reproducibility) as follows:
 
 ```python
-python runner.py dataset=g2 dataset.n=10 dataset.seed=5
+python runner.py dataset=g1 dataset.n=10 dataset.seed=5
 ```
 
 To run the solver over various lambdas:
@@ -28,13 +32,19 @@ To run the solver over various lambdas:
 python runner.py --multirun lmbd=0,0.25,0.5,0.75,1.0
 ```
 
-### MCMC Options
+The default options are as follows. Use Naive solver and `g2` dataset with different lambda as follows:
 
-Default solver is naive solver. Use MCMC solver as follows:
+```yaml
+dataset: g1
+solver: mcmc
+lmbd: 0.1
+```
 
 ```python
-python runner.py solver=mcmc
+python runner.py solver=naive dataset=g2 lmbd=0.7
 ```
+
+### MCMC Options
 
 MCMC solver provides the following options with given default values:
 
