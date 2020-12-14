@@ -111,11 +111,13 @@ class MCMCSolver(Solver):
         start: str = 'empty',
         seed: Optional[int] = None,
         scheduler: Optional[Any] = None,
+        use_best: bool = True,
         visualize: bool = False) -> None:
         self.beta = beta
         self.step = step
         self.start = start
         self.seed = seed
+        self.use_best = use_best
         self.visualize = visualize
 
         if scheduler is not None:
@@ -147,6 +149,14 @@ class MCMCSolver(Solver):
 
         chain = MCMCPowerOptimizer(self.dataset.n, f, beta=self.beta, cache=True)
         res = chain.simulate(state, self.step, scheduler=self.scheduler, seed=self.seed)
+
+        if use_best:
+             # use the best state instead of final simulation state
+            res = chain.trajectory[0]
+            best = chain.objectives[0]
+            for i in range(len(chain.objectives)):
+                if chain.objectives[i] > best:
+                    res = chain.trajectory[i]
 
         if self.visualize:
             objectives = -np.array(chain.objectives)
