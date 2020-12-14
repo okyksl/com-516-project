@@ -5,16 +5,12 @@ from abc import ABC, abstractmethod
 from typing import Callable, Tuple, List, Optional, Any
 from omegaconf import DictConfig
 
-
 from src.dataset import Dataset
 from src.geometry import find_max_dist
 from src.mcmc import MCMCPowerOptimizer
 from src.utils import rand, rand_bool, rand_bool_n, rand_int
 
 class Solver(ABC):
-    dataset: Dataset = None
-    lmbd: float = None
-
     def solve(self, dataset: Dataset, lmbd: float) -> Tuple[list, float]:
         """Saves dataset and lambda, uses internal solver to report results"""
         # save global params
@@ -47,9 +43,6 @@ class Solver(ABC):
 
 class NaiveSolver(Solver):
     """Implements naive O(n^3) brute-force solution"""
-
-    S: list = None
-    best: float = None
 
     def _consider(self, center: np.ndarray, radius: float) -> None:
         """Updates best solution according to the proposed circle"""

@@ -9,9 +9,6 @@ T = TypeVar('T')
 
 class MCMC(Generic[T]):
     """Generic MCMC for """
-
-    trajectory = []
-
     @abstractmethod
     def base(self, i: T, j: T) -> float:
         """Returns the base chain transition probability :math:`p(X_1 = j | X_0 = i)`"""
@@ -44,6 +41,7 @@ class MCMC(Generic[T]):
 
     def simulate(self, i: T, n: int, seed: Optional[int] = None) -> T:
         """Simulate the MCMC from the given start state"""
+        self.trajectory = []
         if seed is not None:
             np.random.seed(seed)
 
@@ -108,8 +106,6 @@ class MCMCPower(MCMCUniform[List[bool]]):
 
 class MCMCOptimizer(MCMC[T]):
     """MCMC to optimize a given generic function"""
-    objectives = []
-
     def __init__(self, f: Callable, beta: float = 10, cache: bool = True) -> None:
         self.f = f
         self.beta = beta
@@ -139,6 +135,7 @@ class MCMCOptimizer(MCMC[T]):
         return np.exp(exponent)
 
     def simulate(self, i: T, n: int, seed: int = None, scheduler: Optional[Callable] = None) -> T:
+        self.objectives = []
         self.scheduler = scheduler
         return super().simulate(i, n, seed)
 
