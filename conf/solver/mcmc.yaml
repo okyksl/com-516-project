@@ -8,4 +8,5 @@ scheduler:
   checkpoints: [500, 1000, 1500]
   betas: [5, 25, 125]
 use_best: true
+num_trials: 10
 visualize: False

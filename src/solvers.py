@@ -112,12 +112,14 @@ class MCMCSolver(Solver):
         seed: Optional[int] = None,
         scheduler: Optional[Any] = None,
         use_best: bool = True,
+        num_trials: int = 1,
         visualize: bool = False) -> None:
         self.beta = beta
         self.step = step
         self.start = start
         self.seed = seed
         self.use_best = use_best
+        self.num_trials = num_trials
         self.visualize = visualize
 
         if scheduler is not None:
@@ -141,24 +143,53 @@ class MCMCSolver(Solver):
             return -self.objective(i, radius)
 
         if self.start == 'empty':
-            state = [False for i in range(self.dataset.n)]
+            initial_state = [False for i in range(self.dataset.n)]
         elif self.start == 'binom':
-            state = rand_bool_n(self.dataset.n)
+            initial_state = rand_bool_n(self.dataset.n)
         else:
             raise ValueError
 
-        chain = MCMCPowerOptimizer(self.dataset.n, f, beta=self.beta, cache=True)
-        res = chain.simulate(state, self.step, scheduler=self.scheduler, seed=self.seed)
+        if self.seed is None:
+            self.seed = 0
 
-        if use_best:
-             # use the best state instead of final simulation state
-            res = chain.trajectory[0]
-            best = chain.objectives[0]
-            for i in range(len(chain.objectives)):
-                if chain.objectives[i] > best:
-                    res = chain.trajectory[i]
+        states, results = [], []
+        for i in range(self.num_trials):
+            # simulate the chain
+            chain = MCMCPowerOptimizer(self.dataset.n, f, beta=self.beta, cache=True)
+            state = chain.simulate(initial_state, self.step, scheduler=self.scheduler, seed=self.seed)
 
+            if self.use_best:
+                # use the best state instead of final simulation state
+                state = chain.trajectory[0]
+                objective = chain.objectives[0]
+                for i in range(len(chain.objectives)):
+                    if chain.objectives[i] < objective:
+                        state = chain.trajectory[i]
+                        objective = chain.objectives[i]
+            else:
+                objective = chain.objectives[-1]
+
+            # save this run's results
+            states.append(state)
+            results.append(objective)
+
+            # update seed for a different run
+            self.seed += 1
+
+        # convert to numpy
+        states = np.array(states)
+        results = np.array(results)
+
+        # get best state & res
+        i = np.argmin(results)
+        state = states[i]
+        result = -results[i] # convert to max. from min. problem
+
+        # visualize if asked
         if self.visualize:
+            if self.num_trials > 1:
+                print('Visualizing only the last run!')
+
             objectives = -np.array(chain.objectives)
             states = [ np.sum(np.array(trajectory)) for trajectory in chain.trajectory ]
 
@@ -170,4 +201,4 @@ class MCMCSolver(Solver):
             axs[1].set_ylabel(f'$|S|$')
             plt.show()
 
-        return np.arange(self.dataset.n)[res], -f(res)
+        return np.arange(self.dataset.n)[state], result
