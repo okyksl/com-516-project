@@ -70,10 +70,14 @@ def rotating_calipers(hull: np.ndarray) -> float:
     """Generates antipodal points of a given convex hull"""
 
     n = len(hull)
-    if n < 2:
-        return 0
+    if n == 0:
+        return
+    elif n == 1:
+        yield hull[0], hull[0]
+        return
     elif n == 2:
-        return np.linalg.norm(hull[0] - hull[1], ord=2)
+        yield hull[0], hull[1]
+        return
 
     j = 1
     while area(hull[n-1], hull[0], hull[j]) < area(hull[n-1], hull[0], hull[j+1]):
