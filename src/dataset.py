@@ -1,3 +1,4 @@
+import csv
 import numpy as np
 from typing import Any, Callable, Optional, Type, TypeVar
 
@@ -108,3 +109,35 @@ class G2Dataset(GeneratorDataset):
             coord_gen,
             **kwargs
         )
+
+class CSVDataset(Dataset):
+    def __init__(
+        self,
+        path: str,
+    ) -> None:
+        with open(path, 'r') as file:
+            reader = csv.reader(file)
+            rows = []
+            for r in reader:
+                rows.append(r)
+        rows = rows[1:]
+            
+        self.ids = np.array([ r[0] for r in rows ])
+        super().__init__(
+            n=len(rows),
+            vals=np.array([ float(r[1]) for r in rows ]),
+            coords=np.array([ [float(r[2]), float(r[3])] for r in rows ])
+        )
+
+    def output_csv(
+        self,
+        path: str,
+        cities: np.ndarray
+    ) -> None:
+        out = [['id', 'include']]
+        for i in range(len(self.ids)):
+            out.append([ self.ids[i], (1 if i in cities else 0) ])
+
+        with open(path, 'w+') as file:
+            writer = csv.writer(file, delimiter=',')
+            writer.writerows(out)
